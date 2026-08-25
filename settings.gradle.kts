@@ -25,3 +25,4 @@ dependencyResolutionManagement {
 rootProject.name = "Cats API Challenge"
 include(":app")
 include(":core")
+include(":designsystem")

@@ -8,7 +8,7 @@ Given the 4–6 hour timebox and the emphasis on code quality over completeness,
 
 ## Architectural decisions
 
-- MVVM with Clean Architecture and a multi-module layout (`app`, `core`, `feature-*`).
+- MVVM with Clean Architecture and a multi-module layout (`app`, `core`, `designsystem`, `feature-*`).
 - Jetpack Compose for the UI.
 - Coroutines and Flow for async work and state handling.
 - Koin for dependency injection.
