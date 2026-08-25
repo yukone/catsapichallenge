@@ -4,6 +4,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -58,6 +59,10 @@ androidComponents {
 }
 
 dependencies {
+    implementation(project(":core"))
+    implementation(project(":designsystem"))
+    implementation(project(":feature-breedlist"))
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
@@ -66,6 +71,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.navigation.compose)
+    implementation(libs.serialization.json)
     implementation(libs.material)
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)

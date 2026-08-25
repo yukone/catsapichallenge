@@ -11,7 +11,7 @@ class CatApi(private val client: HttpClient) {
     companion object {
         private const val BASE_URL = "https://api.thecatapi.com/v1"
     }
-    suspend fun getBreeds(page: Int = 1, limit: Int = 20): List<BreedDto> {
+    suspend fun getBreeds(page: Int = 0, limit: Int = 20): List<BreedDto> {
 
         return client.get("$BASE_URL/breeds") {
             parameter("page",page)

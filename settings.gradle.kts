@@ -26,3 +26,4 @@ rootProject.name = "Cats API Challenge"
 include(":app")
 include(":core")
 include(":designsystem")
+include(":feature-breedlist")

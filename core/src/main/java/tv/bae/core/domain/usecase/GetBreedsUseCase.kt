@@ -6,6 +6,6 @@ import tv.bae.core.domain.repository.BreedRepository
 class GetBreedsUseCase(
     private val repository: BreedRepository,
 ) {
-    suspend operator fun invoke(): Result<List<Breed>> =
-        repository.getBreeds()
+    suspend operator fun invoke(page: Int = 0): Result<List<Breed>> =
+        repository.getBreeds(page)
 }

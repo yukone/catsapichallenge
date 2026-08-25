@@ -13,6 +13,7 @@ fun createKtorClient(apiKey: String = ""): HttpClient = HttpClient(Android) {
         json(Json {
             ignoreUnknownKeys = true
             isLenient = true
+            coerceInputValues = true
             prettyPrint = true
         })
     }

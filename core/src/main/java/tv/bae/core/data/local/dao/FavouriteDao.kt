@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import tv.bae.core.data.local.entities.FavouriteEntity
 
 @Dao
 interface FavouriteDao {
@@ -11,7 +12,7 @@ interface FavouriteDao {
     suspend fun getAllFavouriteIds(): List<String>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(breedId: String)
+    suspend fun insert(favourite: FavouriteEntity)
 
     @Query("DELETE FROM favourites WHERE breedId = :breedId")
     suspend fun delete(breedId: String)
