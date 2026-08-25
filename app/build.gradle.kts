@@ -1,3 +1,6 @@
+import com.android.build.api.variant.BuildConfigField
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
@@ -31,15 +34,44 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
 
+val keystoreFile = project.rootProject.file("apikey.properties")
+val properties = Properties()
+properties.load(keystoreFile.inputStream())
+val apiKey = properties.getProperty("CAT_API_KEY") ?: ""
+
+androidComponents {
+    onVariants { variant ->
+        variant.buildConfigFields?.put(
+            "CAT_API_KEY",
+            BuildConfigField(
+                type = "String",
+                value = "\"${apiKey}\"",
+                comment = null
+            )
+        )
+    }
+}
+
 dependencies {
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.material)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
