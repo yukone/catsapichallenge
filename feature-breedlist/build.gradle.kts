@@ -35,6 +35,7 @@ dependencies {
 
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.navigation.compose)
+    implementation(libs.paging.compose)
 
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
@@ -42,4 +43,5 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
 }

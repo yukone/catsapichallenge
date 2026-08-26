@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,7 +49,7 @@ fun BreedCard(
                 modifier = Modifier.size(64.dp).clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop,
                 placeholder = ColorPainter(Color.LightGray),
-                error = ColorPainter(Color.Red),
+                error = rememberVectorPainter(image = Icons.Default.Warning),
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(

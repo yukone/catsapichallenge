@@ -8,6 +8,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import tv.bae.core.data.local.dao.BreedDao
 import tv.bae.core.data.local.dao.FavouriteDao
 import tv.bae.core.data.local.entities.FavouriteEntity
 import tv.bae.core.data.remote.CatApi
@@ -18,6 +19,7 @@ class BreedRepositoryImplTest {
 
     private lateinit var catApi: CatApi
     private lateinit var favouriteDao: FavouriteDao
+    private lateinit var breedDao: BreedDao
     private lateinit var repository: BreedRepositoryImpl
 
     private val fakeDto = BreedDto(
@@ -44,39 +46,24 @@ class BreedRepositoryImplTest {
     fun setup() {
         catApi = mockk()
         favouriteDao = mockk()
-        repository = BreedRepositoryImpl(catApi, favouriteDao)
+        breedDao = mockk()
+        repository = BreedRepositoryImpl(catApi, favouriteDao, breedDao)
     }
 
     @Test
-    fun `getBreeds returns mapped breeds with favourite status`() = runTest {
-        coEvery { catApi.getBreeds(page = 0) } returns listOf(fakeDto, fakeDto2)
-        coEvery { favouriteDao.getAllFavouriteIds() } returns listOf("stcat")
-
-        val result = repository.getBreeds(page = 0)
-
-        assertTrue(result.isSuccess)
-        val breeds = result.getOrNull()!!
-        assertEquals(2, breeds.size)
-        assertEquals("stcat", breeds[0].id)
-        assertEquals("Street cat", breeds[0].name)
-        assertTrue(breeds[0].isFavourite)
-        assertEquals("hcat", breeds[1].id)
-        assertEquals(false, breeds[1].isFavourite)
-    }
-
-    @Test
-    fun `getBreeds returns failure on exception`() = runTest {
-        coEvery { catApi.getBreeds(any()) } throws RuntimeException("Network error")
-
-        val result = repository.getBreeds(page = 0)
-
-        assertTrue(result.isFailure)
-        assertEquals("Network error", result.exceptionOrNull()?.message)
-    }
-
-    @Test
-    fun `getBreedById returns breed when found`() = runTest {
-        coEvery { catApi.getBreeds(page = 0, limit = 100) } returns listOf(fakeDto, fakeDto2)
+    fun `getBreedById returns breed from cache when available`() = runTest {
+        val cachedEntity = tv.bae.core.data.local.entities.BreedEntity(
+            id = "stcat",
+            name = "Street cat",
+            origin = "Valbom",
+            temperament = "Active, energetic, noisy",
+            description = "The Street cat aren't too friendly but they love food.",
+            lifeSpan = "8 - 15",
+            imageUrl = "https://example.com/stcat.jpg",
+            page = 0,
+            cachedAt = System.currentTimeMillis(),
+        )
+        coEvery { breedDao.getById("stcat") } returns cachedEntity
         coEvery { favouriteDao.isFavourite("stcat") } returns true
 
         val result = repository.getBreedById("stcat")
@@ -89,7 +76,22 @@ class BreedRepositoryImplTest {
     }
 
     @Test
+    fun `getBreedById fetches from API when not cached`() = runTest {
+        coEvery { breedDao.getById("stcat") } returns null
+        coEvery { catApi.getBreeds(page = 0, limit = 100) } returns listOf(fakeDto, fakeDto2)
+        coEvery { favouriteDao.isFavourite("stcat") } returns false
+        coEvery { breedDao.insertAll(any()) } returns Unit
+
+        val result = repository.getBreedById("stcat")
+
+        assertTrue(result.isSuccess)
+        val breed = result.getOrNull()!!
+        assertEquals("stcat", breed.id)
+    }
+
+    @Test
     fun `getBreedById returns failure when breed not found`() = runTest {
+        coEvery { breedDao.getById("unknown") } returns null
         coEvery { catApi.getBreeds(page = 0, limit = 100) } returns listOf(fakeDto)
 
         val result = repository.getBreedById("unknown")
@@ -99,8 +101,36 @@ class BreedRepositoryImplTest {
     }
 
     @Test
-    fun `getFavouriteBreeds returns only favourited breeds`() = runTest {
+    fun `getFavouriteBreeds returns from cache when available`() = runTest {
         coEvery { favouriteDao.getAllFavouriteIds() } returns listOf("stcat", "unknown")
+        val cachedEntities = listOf(
+            tv.bae.core.data.local.entities.BreedEntity(
+                id = "stcat",
+                name = "Street cat",
+                origin = "Valbom",
+                temperament = "Active",
+                description = "Test",
+                lifeSpan = "8 - 15",
+                imageUrl = null,
+                page = 0,
+                cachedAt = System.currentTimeMillis(),
+            ),
+        )
+        coEvery { breedDao.getByIds(listOf("stcat", "unknown")) } returns cachedEntities
+
+        val result = repository.getFavouriteBreeds()
+
+        assertTrue(result.isSuccess)
+        val breeds = result.getOrNull()!!
+        assertEquals(1, breeds.size)
+        assertEquals("stcat", breeds[0].id)
+        assertTrue(breeds[0].isFavourite)
+    }
+
+    @Test
+    fun `getFavouriteBreeds fetches from API when cache empty`() = runTest {
+        coEvery { favouriteDao.getAllFavouriteIds() } returns listOf("stcat", "unknown")
+        coEvery { breedDao.getByIds(listOf("stcat", "unknown")) } returns emptyList()
         coEvery { catApi.getBreeds(page = 0, limit = 100) } returns listOf(fakeDto, fakeDto2)
 
         val result = repository.getFavouriteBreeds()
@@ -115,7 +145,6 @@ class BreedRepositoryImplTest {
     @Test
     fun `getFavouriteBreeds returns empty when no favourites`() = runTest {
         coEvery { favouriteDao.getAllFavouriteIds() } returns emptyList()
-        coEvery { catApi.getBreeds(page = 0, limit = 100) } returns listOf(fakeDto)
 
         val result = repository.getFavouriteBreeds()
 

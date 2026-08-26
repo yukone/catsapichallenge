@@ -55,6 +55,8 @@ dependencies {
     implementation(libs.serialization.json)
 
     implementation(libs.room.runtime)
+    implementation(libs.paging.runtime)
+    implementation(libs.paging.room)
     ksp(libs.room.compiler)
 
     implementation(libs.koin.core)
@@ -70,4 +72,5 @@ dependencies {
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.koin.test)
     androidTestImplementation(libs.koin.android.test)
+    androidTestImplementation(libs.turbine)
 }

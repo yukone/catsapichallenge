@@ -9,7 +9,6 @@ import tv.bae.core.data.repository.BreedRepositoryImpl
 import tv.bae.core.domain.repository.BreedRepository
 import tv.bae.core.domain.usecase.GetAverageLifespanUseCase
 import tv.bae.core.domain.usecase.GetBreedDetailUseCase
-import tv.bae.core.domain.usecase.GetBreedsUseCase
 import tv.bae.core.domain.usecase.GetFavouriteBreedsUseCase
 import tv.bae.core.domain.usecase.ToggleFavouriteUseCase
 
@@ -19,15 +18,15 @@ val coreModule = module {
         .build()
     }
     single { get<AppDatabase>().favouriteDao() }
+    single { get<AppDatabase>().breedDao() }
 
     single { createKtorClient() }
     single { CatApi(get()) }
 
     single<BreedRepository> {
-        BreedRepositoryImpl(get(), get())
+        BreedRepositoryImpl(get(), get(), get())
     }
 
-    factory { GetBreedsUseCase(get()) }
     factory { GetBreedDetailUseCase(get()) }
     factory { GetFavouriteBreedsUseCase(get()) }
     factory { ToggleFavouriteUseCase(get()) }

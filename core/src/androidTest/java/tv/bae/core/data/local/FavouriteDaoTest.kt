@@ -1,5 +1,6 @@
 package tv.bae.core.data.local
 
+import app.cash.turbine.test
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -96,5 +97,31 @@ class FavouriteDaoTest {
         val ids = dao.getAllFavouriteIds()
 
         assertTrue(ids.isEmpty())
+    }
+
+    @Test
+    fun getAllFavouriteIdsFlow_emits_on_insert() = runTest {
+        dao.getAllFavouriteIdsFlow().test {
+            assertEquals(emptyList<String>(), awaitItem())
+
+            dao.insert(FavouriteEntity("stcat"))
+            assertEquals(listOf("stcat"), awaitItem())
+
+            dao.insert(FavouriteEntity("hcat"))
+            assertEquals(listOf("stcat", "hcat"), awaitItem())
+        }
+    }
+
+    @Test
+    fun getAllFavouriteIdsFlow_emits_on_delete() = runTest {
+        dao.insert(FavouriteEntity("stcat"))
+        dao.insert(FavouriteEntity("hcat"))
+
+        dao.getAllFavouriteIdsFlow().test {
+            assertEquals(listOf("stcat", "hcat"), awaitItem())
+
+            dao.delete("stcat")
+            assertEquals(listOf("hcat"), awaitItem())
+        }
     }
 }

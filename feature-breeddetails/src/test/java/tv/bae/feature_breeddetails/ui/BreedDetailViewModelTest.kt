@@ -1,5 +1,6 @@
 package tv.bae.feature_breeddetails.ui
 
+import app.cash.turbine.test
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -48,28 +49,32 @@ class BreedDetailViewModelTest {
     }
 
     @Test
-    fun `init loads breed detail and emits Success`() = runTest {
+    fun `init emits Loading then Success`() = runTest {
         coEvery { getBreedDetailUseCase("stcat") } returns Result.success(fakeBreed)
 
         val viewModel = BreedDetailViewModel("stcat", getBreedDetailUseCase, toggleFavouriteUseCase)
-        advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertTrue(state is BreedDetailUiState.Success)
-        assertEquals("stcat", (state as BreedDetailUiState.Success).breed.id)
-        assertEquals("Street cat", state.breed.name)
+        viewModel.uiState.test {
+            assertEquals(BreedDetailUiState.Loading, awaitItem())
+            val success = awaitItem()
+            assertTrue(success is BreedDetailUiState.Success)
+            assertEquals("stcat", (success as BreedDetailUiState.Success).breed.id)
+            assertEquals("Street cat", success.breed.name)
+        }
     }
 
     @Test
-    fun `init with failure emits Error`() = runTest {
+    fun `init emits Loading then Error`() = runTest {
         coEvery { getBreedDetailUseCase("stcat") } returns Result.failure(RuntimeException("Not found"))
 
         val viewModel = BreedDetailViewModel("stcat", getBreedDetailUseCase, toggleFavouriteUseCase)
-        advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertTrue(state is BreedDetailUiState.Error)
-        assertEquals("Not found", (state as BreedDetailUiState.Error).message)
+        viewModel.uiState.test {
+            assertEquals(BreedDetailUiState.Loading, awaitItem())
+            val error = awaitItem()
+            assertTrue(error is BreedDetailUiState.Error)
+            assertEquals("Not found", (error as BreedDetailUiState.Error).message)
+        }
     }
 
     @Test
@@ -78,17 +83,20 @@ class BreedDetailViewModelTest {
         coEvery { toggleFavouriteUseCase("stcat") } returns Result.success(Unit)
 
         val viewModel = BreedDetailViewModel("stcat", getBreedDetailUseCase, toggleFavouriteUseCase)
-        advanceUntilIdle()
 
-        coEvery { getBreedDetailUseCase("stcat") } returns Result.success(
-            fakeBreed.copy(isFavourite = true)
-        )
+        viewModel.uiState.test {
+            assertEquals(BreedDetailUiState.Loading, awaitItem())
+            awaitItem() // Success
 
-        viewModel.toggleFavourite()
-        advanceUntilIdle()
+            coEvery { getBreedDetailUseCase("stcat") } returns Result.success(
+                fakeBreed.copy(isFavourite = true)
+            )
 
-        val state = viewModel.uiState.value as BreedDetailUiState.Success
-        assertTrue(state.breed.isFavourite)
+            viewModel.toggleFavourite()
+            assertEquals(BreedDetailUiState.Loading, awaitItem())
+            val success = awaitItem() as BreedDetailUiState.Success
+            assertTrue(success.breed.isFavourite)
+        }
     }
 
     @Test
@@ -96,15 +104,16 @@ class BreedDetailViewModelTest {
         coEvery { getBreedDetailUseCase("stcat") } returns Result.failure(RuntimeException("Error"))
 
         val viewModel = BreedDetailViewModel("stcat", getBreedDetailUseCase, toggleFavouriteUseCase)
-        advanceUntilIdle()
 
-        assertTrue(viewModel.uiState.value is BreedDetailUiState.Error)
+        viewModel.uiState.test {
+            assertEquals(BreedDetailUiState.Loading, awaitItem())
+            assertTrue(awaitItem() is BreedDetailUiState.Error)
 
-        coEvery { getBreedDetailUseCase("stcat") } returns Result.success(fakeBreed)
+            coEvery { getBreedDetailUseCase("stcat") } returns Result.success(fakeBreed)
 
-        viewModel.loadBreed()
-        advanceUntilIdle()
-
-        assertTrue(viewModel.uiState.value is BreedDetailUiState.Success)
+            viewModel.loadBreed()
+            assertEquals(BreedDetailUiState.Loading, awaitItem())
+            assertTrue(awaitItem() is BreedDetailUiState.Success)
+        }
     }
 }

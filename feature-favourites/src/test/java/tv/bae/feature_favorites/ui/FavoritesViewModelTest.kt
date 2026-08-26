@@ -1,17 +1,16 @@
 package tv.bae.feature_favorites.ui
 
+import app.cash.turbine.test
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -54,7 +53,7 @@ class FavoritesViewModelTest {
     }
 
     @Test
-    fun `init loads favourites and emits Success`() = runTest {
+    fun `init emits Loading then Success`() = runTest {
         coEvery { getFavouriteBreedsUseCase() } returns Result.success(listOf(fakeBreed))
         coEvery { getAverageLifespanUseCase() } returns Result.success(15.0)
 
@@ -63,17 +62,19 @@ class FavoritesViewModelTest {
             getAverageLifespanUseCase,
             toggleFavouriteUseCase,
         )
-        advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertTrue(state is FavoritesUiState.Success)
-        val success = state as FavoritesUiState.Success
-        assertEquals(1, success.breeds.size)
-        assertEquals(15.0, success.averageLifespan!!, 0.001)
+        viewModel.uiState.test {
+            assertEquals(FavoritesUiState.Loading, awaitItem())
+            val success = awaitItem()
+            assertTrue(success is FavoritesUiState.Success)
+            val data = success as FavoritesUiState.Success
+            assertEquals(1, data.breeds.size)
+            assertEquals(15.0, data.averageLifespan!!, 0.001)
+        }
     }
 
     @Test
-    fun `init with empty favourites emits Empty`() = runTest {
+    fun `init emits Loading then Empty`() = runTest {
         coEvery { getFavouriteBreedsUseCase() } returns Result.success(emptyList())
 
         val viewModel = FavoritesViewModel(
@@ -81,13 +82,15 @@ class FavoritesViewModelTest {
             getAverageLifespanUseCase,
             toggleFavouriteUseCase,
         )
-        advanceUntilIdle()
 
-        assertTrue(viewModel.uiState.value is FavoritesUiState.Empty)
+        viewModel.uiState.test {
+            assertEquals(FavoritesUiState.Loading, awaitItem())
+            assertTrue(awaitItem() is FavoritesUiState.Empty)
+        }
     }
 
     @Test
-    fun `init with failure emits Error`() = runTest {
+    fun `init emits Loading then Error`() = runTest {
         coEvery { getFavouriteBreedsUseCase() } returns Result.failure(RuntimeException("DB error"))
 
         val viewModel = FavoritesViewModel(
@@ -95,11 +98,13 @@ class FavoritesViewModelTest {
             getAverageLifespanUseCase,
             toggleFavouriteUseCase,
         )
-        advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertTrue(state is FavoritesUiState.Error)
-        assertEquals("DB error", (state as FavoritesUiState.Error).message)
+        viewModel.uiState.test {
+            assertEquals(FavoritesUiState.Loading, awaitItem())
+            val error = awaitItem()
+            assertTrue(error is FavoritesUiState.Error)
+            assertEquals("DB error", (error as FavoritesUiState.Error).message)
+        }
     }
 
     @Test
@@ -113,27 +118,16 @@ class FavoritesViewModelTest {
             getAverageLifespanUseCase,
             toggleFavouriteUseCase,
         )
-        advanceUntilIdle()
 
-        coEvery { getFavouriteBreedsUseCase() } returns Result.success(emptyList())
+        viewModel.uiState.test {
+            assertEquals(FavoritesUiState.Loading, awaitItem())
+            awaitItem() // Success
 
-        viewModel.removeFavourite("stcat")
-        advanceUntilIdle()
+            coEvery { getFavouriteBreedsUseCase() } returns Result.success(emptyList())
 
-        assertTrue(viewModel.uiState.value is FavoritesUiState.Empty)
-    }
-
-    @Test
-    fun `averageLifespan is null when no favourites`() = runTest {
-        coEvery { getFavouriteBreedsUseCase() } returns Result.success(emptyList())
-
-        val viewModel = FavoritesViewModel(
-            getFavouriteBreedsUseCase,
-            getAverageLifespanUseCase,
-            toggleFavouriteUseCase,
-        )
-        advanceUntilIdle()
-
-        assertTrue(viewModel.uiState.value is FavoritesUiState.Empty)
+            viewModel.removeFavourite("stcat")
+            assertEquals(FavoritesUiState.Loading, awaitItem())
+            assertTrue(awaitItem() is FavoritesUiState.Empty)
+        }
     }
 }

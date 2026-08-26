@@ -5,5 +5,5 @@ import org.koin.dsl.module
 import tv.bae.feature_breedlist.ui.BreedListViewModel
 
 val breedListModule = module {
-    viewModel { BreedListViewModel(get(), get()) }
+    viewModel { BreedListViewModel(get(), get(), get()) }
 }
