@@ -8,6 +8,7 @@ import org.koin.core.logger.Level
 import tv.bae.core.di.coreModule
 import tv.bae.feature_breedlist.di.breedListModule
 import tv.bae.feature_favorites.di.favoritesModule
+import tv.bae.feature_breeddetails.di.breedDetailModule
 
 class CatsApiApplication : Application() {
     override fun onCreate() {
@@ -19,6 +20,7 @@ class CatsApiApplication : Application() {
                 coreModule,
                 breedListModule,
                 favoritesModule,
+                breedDetailModule,
             )
         }
     }

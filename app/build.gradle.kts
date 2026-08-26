@@ -45,6 +45,7 @@ dependencies {
     implementation(project(":designsystem"))
     implementation(project(":feature-breedlist"))
     implementation(project(":feature-favourites"))
+    implementation(project(":feature-breeddetails"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

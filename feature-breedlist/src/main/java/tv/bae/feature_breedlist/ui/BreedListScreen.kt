@@ -34,6 +34,10 @@ fun BreedListScreen(
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
 
+    LaunchedEffect(Unit) {
+        viewModel.refreshIfNeeded()
+    }
+
     val shouldLoadMore by remember {
         derivedStateOf {
             val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0

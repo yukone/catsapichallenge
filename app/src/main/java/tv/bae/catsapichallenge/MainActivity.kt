@@ -27,6 +27,8 @@ import tv.bae.feature_breedlist.navigation.BreedListRoute
 import tv.bae.feature_breedlist.navigation.breedListGraph
 import tv.bae.feature_favorites.navigation.FavoritesRoute
 import tv.bae.feature_favorites.navigation.favoritesGraph
+import tv.bae.feature_breeddetails.navigation.breedDetailGraph
+import tv.bae.feature_breeddetails.navigation.navigateToBreedDetail
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,26 +53,34 @@ private fun MainScreen() {
         BottomNavItem("Favourites", FavoritesRoute, Icons.Default.Favorite),
     )
 
+    val topBarRoutes = setOf(
+        BreedListRoute::class.qualifiedName,
+        FavoritesRoute::class.qualifiedName,
+    )
+    val showBottomBar = currentDestination?.route in topBarRoutes
+
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                bottomBarItems.forEach { item ->
-                    NavigationBarItem(
-                        icon = { Icon(item.icon, contentDescription = item.label) },
-                        label = { Text(item.label) },
-                        selected = currentDestination?.hierarchy?.any {
-                            it.route == item.route::class.qualifiedName
-                        } == true,
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+            if (showBottomBar) {
+                NavigationBar {
+                    bottomBarItems.forEach { item ->
+                        NavigationBarItem(
+                            icon = { Icon(item.icon, contentDescription = item.label) },
+                            label = { Text(item.label) },
+                            selected = currentDestination?.hierarchy?.any {
+                                it.route == item.route::class.qualifiedName
+                            } == true,
+                            onClick = {
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                    )
+                            },
+                        )
+                    }
                 }
             }
         },
@@ -81,10 +91,13 @@ private fun MainScreen() {
             modifier = Modifier.padding(padding),
         ) {
             breedListGraph(
-                onBreedClick = { /* TODO: navigate to detail */ },
+                onBreedClick = { breedId -> navController.navigateToBreedDetail(breedId) },
             )
             favoritesGraph(
-                onBreedClick = { /* TODO: navigate to detail */ },
+                onBreedClick = { breedId -> navController.navigateToBreedDetail(breedId) },
+            )
+            breedDetailGraph(
+                onBackClick = { navController.popBackStack() },
             )
         }
     }

@@ -25,8 +25,9 @@ class BreedRepositoryImpl(
 
     override suspend fun getBreedById(id: String): Result<Breed> {
         return try {
-            val breeds = catApi.getBreeds()
-            val breed = breeds.first { it.id == id }
+            val breeds = catApi.getBreeds(page = 0, limit = 100)
+            val breed = breeds.firstOrNull { it.id == id }
+                ?: return Result.failure(NoSuchElementException("Breed not found"))
             val isFav = favouriteDao.isFavourite(id)
             Result.success(breed.toDomain().copy(isFavourite = isFav))
         } catch (e: Exception) {

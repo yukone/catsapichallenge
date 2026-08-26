@@ -68,4 +68,19 @@ class BreedListViewModel(
             loadNextPage()
         }
     }
+
+    fun refreshIfNeeded() {
+        if (allBreeds.isNotEmpty()) {
+            viewModelScope.launch {
+                val result = getBreedsUseCase(page = 0)
+                result.onSuccess { breeds ->
+                    val favIds = breeds.filter { it.isFavourite }.map { it.id }.toSet()
+                    allBreeds.forEachIndexed { index, breed ->
+                        allBreeds[index] = breed.copy(isFavourite = breed.id in favIds)
+                    }
+                    _uiState.value = BreedListUiState.Success(allBreeds.toList())
+                }
+            }
+        }
+    }
 }
