@@ -40,32 +40,16 @@ android {
     }
 }
 
-val keystoreFile = project.rootProject.file("apikey.properties")
-val properties = Properties()
-properties.load(keystoreFile.inputStream())
-val apiKey = properties.getProperty("CAT_API_KEY") ?: ""
-
-androidComponents {
-    onVariants { variant ->
-        variant.buildConfigFields?.put(
-            "CAT_API_KEY",
-            BuildConfigField(
-                type = "String",
-                value = "\"${apiKey}\"",
-                comment = null
-            )
-        )
-    }
-}
-
 dependencies {
     implementation(project(":core"))
     implementation(project(":designsystem"))
     implementation(project(":feature-breedlist"))
+    implementation(project(":feature-favourites"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.compose.material.icons.core.android)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)

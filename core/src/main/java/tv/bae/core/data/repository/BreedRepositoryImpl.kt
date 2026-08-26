@@ -37,10 +37,11 @@ class BreedRepositoryImpl(
     override suspend fun getFavouriteBreeds(): Result<List<Breed>> {
         return try {
             val favIds = favouriteDao.getAllFavouriteIds()
-            val allBreeds = catApi.getBreeds()
-            val breeds = allBreeds
-                .filter { it.id in favIds }
-                .map { it.toDomain().copy(isFavourite = true) }
+            val allBreeds = catApi.getBreeds(page = 0, limit = 100)
+            val breedMap = allBreeds.associateBy { it.id }
+            val breeds = favIds.mapNotNull { id ->
+                breedMap[id]?.toDomain()?.copy(isFavourite = true)
+            }
             Result.success(breeds)
         } catch (e: Exception) {
             Result.failure(e)

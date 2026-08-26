@@ -7,6 +7,7 @@ import tv.bae.core.data.remote.CatApi
 import tv.bae.core.data.remote.createKtorClient
 import tv.bae.core.data.repository.BreedRepositoryImpl
 import tv.bae.core.domain.repository.BreedRepository
+import tv.bae.core.domain.usecase.GetAverageLifespanUseCase
 import tv.bae.core.domain.usecase.GetBreedDetailUseCase
 import tv.bae.core.domain.usecase.GetBreedsUseCase
 import tv.bae.core.domain.usecase.GetFavouriteBreedsUseCase
@@ -30,4 +31,5 @@ val coreModule = module {
     factory { GetBreedDetailUseCase(get()) }
     factory { GetFavouriteBreedsUseCase(get()) }
     factory { ToggleFavouriteUseCase(get()) }
+    factory { GetAverageLifespanUseCase(get()) }
 }

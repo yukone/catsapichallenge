@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/designsystem" />
             <option value="$PROJECT_DIR$/feature-breedlist" />
+            <option value="$PROJECT_DIR$/feature-favourites" />
           </set>
         </option>
       </GradleProjectSettings>

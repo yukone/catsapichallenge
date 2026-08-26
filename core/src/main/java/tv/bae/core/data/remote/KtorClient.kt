@@ -7,8 +7,9 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import tv.bae.core.BuildConfig
 
-fun createKtorClient(apiKey: String = ""): HttpClient = HttpClient(Android) {
+fun createKtorClient(): HttpClient = HttpClient(Android) {
     install(ContentNegotiation) {
         json(Json {
             ignoreUnknownKeys = true
@@ -19,6 +20,6 @@ fun createKtorClient(apiKey: String = ""): HttpClient = HttpClient(Android) {
     }
     expectSuccess = true
     defaultRequest {
-        header("x-api-key", apiKey)
+        header("x-api-key", BuildConfig.CAT_API_KEY)
     }
 }

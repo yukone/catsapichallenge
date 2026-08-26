@@ -7,6 +7,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import tv.bae.core.di.coreModule
 import tv.bae.feature_breedlist.di.breedListModule
+import tv.bae.feature_favorites.di.favoritesModule
 
 class CatsApiApplication : Application() {
     override fun onCreate() {
@@ -16,7 +17,8 @@ class CatsApiApplication : Application() {
             androidContext(this@CatsApiApplication)
             modules(
                 coreModule,
-                breedListModule
+                breedListModule,
+                favoritesModule,
             )
         }
     }
