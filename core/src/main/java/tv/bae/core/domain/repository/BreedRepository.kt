@@ -10,5 +10,6 @@ interface BreedRepository {
     fun getBreedsPager(): Flow<PagingData<BreedEntity>>
     suspend fun getBreedById(id: String): Result<Breed>
     suspend fun getFavouriteBreeds(): Result<List<Breed>>
+    suspend fun searchBreeds(query: String): Result<List<Breed>>
     suspend fun toggleFavourite(breedId: String): Result<Unit>
 }

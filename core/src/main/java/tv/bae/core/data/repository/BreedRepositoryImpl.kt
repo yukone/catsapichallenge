@@ -81,4 +81,14 @@ class BreedRepositoryImpl(
             Result.failure(e)
         }
     }
+
+    override suspend fun searchBreeds(query: String): Result<List<Breed>> {
+        return try {
+            val favIds = favouriteDao.getAllFavouriteIds().toSet()
+            val results = breedDao.searchByName(query)
+            Result.success(results.map { it.toDomain().copy(isFavourite = it.id in favIds) })
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

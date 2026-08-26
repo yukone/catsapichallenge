@@ -29,4 +29,7 @@ interface BreedDao {
 
     @Query("SELECT COUNT(*) FROM breeds")
     suspend fun count(): Int
+
+    @Query("SELECT * FROM breeds WHERE name LIKE '%' || :query || '%' ORDER BY name ASC")
+    suspend fun searchByName(query: String): List<BreedEntity>
 }

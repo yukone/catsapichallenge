@@ -13,6 +13,7 @@ Given the 4–6 hour timebox and the emphasis on code quality over completeness,
 - Coroutines and Flow for async work and state handling.
 - Koin for dependency injection.
 - Ktor with kotlinx.serialization for networking.
+- Local-only search with Material 3 `SearchBar` and 300ms debounce on breed name.
 
 ## Trade-offs
 

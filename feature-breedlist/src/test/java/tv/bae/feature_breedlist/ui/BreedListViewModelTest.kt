@@ -13,10 +13,12 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import tv.bae.core.data.local.dao.FavouriteDao
+import tv.bae.core.domain.model.Breed
 import tv.bae.core.domain.repository.BreedRepository
 import tv.bae.core.domain.usecase.ToggleFavouriteUseCase
 
@@ -27,6 +29,16 @@ class BreedListViewModelTest {
     private lateinit var breedRepository: BreedRepository
     private lateinit var favouriteDao: FavouriteDao
     private lateinit var toggleFavouriteUseCase: ToggleFavouriteUseCase
+
+    private val fakeBreed = Breed(
+        id = "stcat",
+        name = "Street cat",
+        origin = "Valbom",
+        temperament = "Active, energetic, noisy",
+        description = "The Street cat aren't too friendly but they love food.",
+        lifeSpan = "8 - 15",
+        imageUrl = "https://example.com/stcat.jpg",
+    )
 
     @Before
     fun setup() {
@@ -69,5 +81,54 @@ class BreedListViewModelTest {
         advanceUntilIdle()
 
         coEvery { toggleFavouriteUseCase("stcat") }
+    }
+
+    @Test
+    fun `searchQuery starts empty`() = runTest {
+        val viewModel = BreedListViewModel(breedRepository, favouriteDao, toggleFavouriteUseCase)
+
+        assertEquals("", viewModel.searchQuery.value)
+    }
+
+    @Test
+    fun `onSearchQueryChange updates query`() = runTest {
+        val viewModel = BreedListViewModel(breedRepository, favouriteDao, toggleFavouriteUseCase)
+
+        viewModel.onSearchQueryChange("street")
+        assertEquals("street", viewModel.searchQuery.value)
+    }
+
+    @Test
+    fun `searchResults emits filtered breeds`() = runTest {
+        coEvery { breedRepository.searchBreeds("street") } returns Result.success(listOf(fakeBreed))
+
+        val viewModel = BreedListViewModel(breedRepository, favouriteDao, toggleFavouriteUseCase)
+
+        viewModel.searchResults.test {
+            assertEquals(emptyList<Breed>(), awaitItem())
+
+            viewModel.onSearchQueryChange("street")
+            assertEquals(listOf(fakeBreed), awaitItem())
+        }
+    }
+
+    @Test
+    fun `clearSearch resets query`() = runTest {
+        val viewModel = BreedListViewModel(breedRepository, favouriteDao, toggleFavouriteUseCase)
+
+        viewModel.onSearchQueryChange("street")
+        assertEquals("street", viewModel.searchQuery.value)
+
+        viewModel.clearSearch()
+        assertEquals("", viewModel.searchQuery.value)
+    }
+
+    @Test
+    fun `empty search query emits empty results`() = runTest {
+        val viewModel = BreedListViewModel(breedRepository, favouriteDao, toggleFavouriteUseCase)
+
+        viewModel.searchResults.test {
+            assertEquals(emptyList<Breed>(), awaitItem())
+        }
     }
 }

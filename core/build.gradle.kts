@@ -73,4 +73,7 @@ dependencies {
     androidTestImplementation(libs.koin.test)
     androidTestImplementation(libs.koin.android.test)
     androidTestImplementation(libs.turbine)
+    androidTestImplementation(libs.mockk)
+    androidTestImplementation(libs.ktor.mock)
+    androidTestImplementation(libs.paging.common)
 }
