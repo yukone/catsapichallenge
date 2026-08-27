@@ -5,7 +5,7 @@ App for TheCatAPI to browse breeds, handle favourites and show breed details.
 ## Strategies
 
 I focused on the core required flows first. The exception was the modular structure, which I've set up from the start since refactoring it later would be far more costly. 
-The work goes bottom-up: domain, then UI, then data, delivering one feature at a time.
+The work goes bottom-up: domain, then data, then UI, delivering one feature at a time.
 I also knew that I would have to do a major refactor to use Paging3 + RemoteMediator for offline, but I wanted to ensure that, having limited time, I delivered what was required.
 For testing (aside from unit/integration tests), I first used the emulator and then a personal phone to double-check the features.
 
