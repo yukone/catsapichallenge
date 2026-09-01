@@ -25,7 +25,7 @@ val coreModule = module {
     single { CatApi(get()) }
 
     single<BreedRepository> {
-        BreedRepositoryImpl(get(), get(), get(), get())
+        BreedRepositoryImpl(get(), get(), get())
     }
 
     factory { GetBreedDetailUseCase(get()) }

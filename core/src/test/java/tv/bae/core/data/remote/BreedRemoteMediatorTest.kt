@@ -92,7 +92,6 @@ class BreedRemoteMediatorTest {
     @Test
     fun append_loads_next_page_based_on_last_item() = runTest {
         val lastItem = fakeEntity("a", page = 2)
-        coEvery { breedDao.getById("a") } returns lastItem
         coEvery { catApi.getBreeds(page = 3, limit = 20) } returns listOf(fakeDto("b"))
 
         val result = mediator.load(APPEND, fakeState(lastItem))
@@ -115,7 +114,6 @@ class BreedRemoteMediatorTest {
     @Test
     fun append_returns_end_when_api_returns_empty() = runTest {
         val lastItem = fakeEntity("a", page = 0)
-        coEvery { breedDao.getById("a") } returns lastItem
         coEvery { catApi.getBreeds(page = 1, limit = 20) } returns emptyList()
 
         val result = mediator.load(APPEND, fakeState(lastItem))

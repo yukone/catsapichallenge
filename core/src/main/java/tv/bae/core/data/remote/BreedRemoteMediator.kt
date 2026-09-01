@@ -8,8 +8,8 @@ import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import tv.bae.core.data.local.dao.BreedDao
-import tv.bae.core.data.local.mapper.toCacheEntity
 import tv.bae.core.data.local.entities.BreedEntity
+import tv.bae.core.data.local.mapper.toCacheEntity
 
 private const val CACHE_TIMEOUT_MS = 60 * 60 * 1000L // 1 hour
 
@@ -32,8 +32,7 @@ class BreedRemoteMediator(
                     if (lastItem == null) {
                         0
                     } else {
-                        val lastPage = breedDao.getById(lastItem.id)?.page ?: 0
-                        lastPage + 1
+                        lastItem.page + 1
                     }
                 }
             }
