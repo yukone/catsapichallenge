@@ -10,6 +10,7 @@ import tv.bae.core.domain.repository.BreedRepository
 import tv.bae.core.domain.usecase.GetAverageLifespanUseCase
 import tv.bae.core.domain.usecase.GetBreedDetailUseCase
 import tv.bae.core.domain.usecase.GetFavouriteBreedsUseCase
+import tv.bae.core.domain.usecase.GetFavouriteIdsFlowUseCase
 import tv.bae.core.domain.usecase.ToggleFavouriteUseCase
 
 val coreModule = module {
@@ -24,11 +25,12 @@ val coreModule = module {
     single { CatApi(get()) }
 
     single<BreedRepository> {
-        BreedRepositoryImpl(get(), get(), get())
+        BreedRepositoryImpl(get(), get(), get(), get())
     }
 
     factory { GetBreedDetailUseCase(get()) }
     factory { GetFavouriteBreedsUseCase(get()) }
+    factory { GetFavouriteIdsFlowUseCase(get()) }
     factory { ToggleFavouriteUseCase(get()) }
     factory { GetAverageLifespanUseCase(get()) }
 }

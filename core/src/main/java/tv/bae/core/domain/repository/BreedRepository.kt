@@ -6,6 +6,7 @@ import tv.bae.core.domain.model.Breed
 
 interface BreedRepository {
     fun getBreedsPager(): Flow<PagingData<Breed>>
+    fun observeFavouriteIds(): Flow<Set<String>>
     suspend fun getBreedById(id: String): Result<Breed>
     suspend fun getFavouriteBreeds(): Result<List<Breed>>
     suspend fun searchBreeds(query: String): Result<List<Breed>>

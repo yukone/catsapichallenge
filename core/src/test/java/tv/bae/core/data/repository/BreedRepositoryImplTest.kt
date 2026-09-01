@@ -8,6 +8,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import tv.bae.core.data.local.AppDatabase
 import tv.bae.core.data.local.dao.BreedDao
 import tv.bae.core.data.local.dao.FavouriteDao
 import tv.bae.core.data.local.entities.FavouriteEntity
@@ -20,6 +21,7 @@ class BreedRepositoryImplTest {
     private lateinit var catApi: CatApi
     private lateinit var favouriteDao: FavouriteDao
     private lateinit var breedDao: BreedDao
+    private lateinit var database: AppDatabase
     private lateinit var repository: BreedRepositoryImpl
 
     private val fakeDto = BreedDto(
@@ -47,7 +49,8 @@ class BreedRepositoryImplTest {
         catApi = mockk()
         favouriteDao = mockk()
         breedDao = mockk()
-        repository = BreedRepositoryImpl(catApi, favouriteDao, breedDao)
+        database = mockk(relaxed = true)
+        repository = BreedRepositoryImpl(catApi, favouriteDao, breedDao, database)
     }
 
     @Test

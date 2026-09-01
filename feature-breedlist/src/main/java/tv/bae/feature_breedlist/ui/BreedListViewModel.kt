@@ -16,26 +16,23 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import tv.bae.core.data.local.dao.FavouriteDao
-import tv.bae.core.data.local.entities.BreedEntity
 import tv.bae.core.domain.model.Breed
 import tv.bae.core.domain.repository.BreedRepository
+import tv.bae.core.domain.usecase.GetFavouriteIdsFlowUseCase
 import tv.bae.core.domain.usecase.ToggleFavouriteUseCase
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class BreedListViewModel(
     breedRepository: BreedRepository,
-    favouriteDao: FavouriteDao,
+    getFavouriteIdsFlowUseCase: GetFavouriteIdsFlowUseCase,
     private val toggleFavouriteUseCase: ToggleFavouriteUseCase,
 ) : ViewModel() {
 
-    val breeds: Flow<PagingData<BreedEntity>> = breedRepository
+    val breeds: Flow<PagingData<Breed>> = breedRepository
         .getBreedsPager()
         .cachedIn(viewModelScope)
 
-    val favouriteIds: StateFlow<Set<String>> = favouriteDao
-        .getAllFavouriteIdsFlow()
-        .map { it.toSet() }
+    val favouriteIds: StateFlow<Set<String>> = getFavouriteIdsFlowUseCase()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,

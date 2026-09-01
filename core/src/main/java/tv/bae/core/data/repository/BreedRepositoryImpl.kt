@@ -7,6 +7,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import tv.bae.core.data.local.AppDatabase
 import tv.bae.core.data.local.dao.BreedDao
 import tv.bae.core.data.local.dao.FavouriteDao
 import tv.bae.core.data.local.entities.FavouriteEntity
@@ -23,16 +24,20 @@ class BreedRepositoryImpl(
     private val catApi: CatApi,
     private val favouriteDao: FavouriteDao,
     private val breedDao: BreedDao,
+    private val database: AppDatabase,
 ) : BreedRepository {
 
     override fun getBreedsPager(): Flow<PagingData<Breed>> {
         return Pager(
             config = PagingConfig(pageSize = 20, enablePlaceholders = false),
-            remoteMediator = BreedRemoteMediator(catApi, breedDao),
+            remoteMediator = BreedRemoteMediator(catApi, breedDao, database),
             pagingSourceFactory = { breedDao.pagingSource() },
         ).flow
             .map { pagingData -> pagingData.map { it.toDomain() } }
     }
+
+    override fun observeFavouriteIds(): Flow<Set<String>> =
+        favouriteDao.getAllFavouriteIdsFlow().map { it.toSet() }
 
     override suspend fun getBreedById(id: String): Result<Breed> {
         return try {
