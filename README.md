@@ -42,9 +42,10 @@ For testing (aside from unit/integration tests), I first used the emulator and t
 - On the root of the project folder create a file named 'apikey.properties' (this should be excluded from version control)
 - Inside this file write your apikey like "CAT_API_KEY=live_XXXXXX" (can be obtained for free on https://thecatapi.com/)
 
-## Post-submission critical fixes (Applied after the initial submission on a new branch)
+## Post-submission fixes (Applied after the initial submission on a new branch)
 - Clean Architecture fixes:
   - BreedRepository was returning Flow<PagingData<BreedEntity>> instead of Flow<PagingData<Breed>>.
   - BreedListViewModel was using favouriteDao instead of a dedicated use case.
 - Missing tests for GetAverageLifespanUseCase.
-- Removed the unnecessary page calculation on the RemoteMediator. The key is embedded in the entity, so the extra getById was just a leftover defensive query. 
+- Removed the unnecessary page calculation on the RemoteMediator. The key is embedded in the entity, so the extra getById was just a leftover defensive query.
+- Removed dead code BreedListUiState. The list handles its states directly through the paginated list and separate favourite/search states.
