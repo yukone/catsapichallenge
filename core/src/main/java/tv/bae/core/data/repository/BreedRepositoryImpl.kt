@@ -40,16 +40,9 @@ class BreedRepositoryImpl(
     override suspend fun getBreedById(id: String): Result<Breed> {
         return try {
             val cached = breedDao.getById(id)
-            if (cached != null) {
-                val isFav = favouriteDao.isFavourite(id)
-                return Result.success(cached.toDomain().copy(isFavourite = isFav))
-            }
-            val breeds = catApi.getBreeds(page = 0, limit = 100)
-            val breed = breeds.firstOrNull { it.id == id }
                 ?: return Result.failure(NoSuchElementException("Breed not found"))
             val isFav = favouriteDao.isFavourite(id)
-            breedDao.insertAll(listOf(breed.toCacheEntity(0)))
-            Result.success(breed.toDomain().copy(isFavourite = isFav))
+            Result.success(cached.toDomain().copy(isFavourite = isFav))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -60,15 +53,7 @@ class BreedRepositoryImpl(
             val favIds = favouriteDao.getAllFavouriteIds()
             if (favIds.isEmpty()) return Result.success(emptyList())
             val cachedBreeds = breedDao.getByIds(favIds)
-            if (cachedBreeds.isNotEmpty()) {
-                return Result.success(cachedBreeds.map { it.toDomain().copy(isFavourite = true) })
-            }
-            val allBreeds = catApi.getBreeds(page = 0, limit = 100)
-            val breedMap = allBreeds.associateBy { it.id }
-            val breeds = favIds.mapNotNull { id ->
-                breedMap[id]?.toDomain()?.copy(isFavourite = true)
-            }
-            Result.success(breeds)
+            Result.success(cachedBreeds.map { it.toDomain().copy(isFavourite = true) })
         } catch (e: Exception) {
             Result.failure(e)
         }
